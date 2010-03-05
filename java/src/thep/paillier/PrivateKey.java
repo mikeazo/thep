@@ -1,10 +1,15 @@
 package thep.paillier;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Random;
 
-public class PrivateKey {
+public class PrivateKey implements Serializable {
+	/**
+	 * Serial version id
+	 */
+	private static final long serialVersionUID = 1L;
 	private PublicKey pub;
 	private BigInteger lambda;
 	private BigInteger mu;
