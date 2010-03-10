@@ -72,7 +72,7 @@ public class EncryptedInteger implements Serializable {
 	 */
 	public EncryptedInteger add(EncryptedInteger other) throws PublicKeysNotEqualException {
 		if(!this.pub.equals(other.getPublicKey())) {
-			throw new PublicKeysNotEqualException();
+			throw new PublicKeysNotEqualException("Cannot add integers encrypted with different public keys");
 		}
 		EncryptedInteger tmp_int = new EncryptedInteger(this);
 		BigInteger tmp = cipherval.multiply(other.getCipherVal());
