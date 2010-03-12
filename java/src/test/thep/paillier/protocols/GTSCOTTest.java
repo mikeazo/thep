@@ -104,7 +104,7 @@ public class GTSCOTTest extends TestCase {
 	}
 	
 	/*
-	 * TODO: Test serialization of encrypted integer array
+	 * Test serialization of encrypted integer array
 	 */
 	public void testSerialization() throws IOException, VectorSizesNotEqualException, PublicKeysNotEqualException, ClassNotFoundException {
 		// Set up values
