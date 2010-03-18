@@ -110,6 +110,14 @@ public class EncryptedPolynomial implements Serializable {
 		return tmp;
 	}
 	
+	/**
+	 * Multiplies an encrypted polynomial by a known polynomial
+	 * @param plain_coefficients the coefficients of the plain text polynomial
+	 * @return an encrypted polynomial equal to this multiplied by the given plain
+	 * text polynomial
+	 * @throws SizesNotEqualException
+	 * @throws PublicKeysNotEqualException
+	 */
 	public EncryptedPolynomial multiply(BigInteger[] plain_coefficients) throws
 			SizesNotEqualException, PublicKeysNotEqualException {
 		// Check sizes
