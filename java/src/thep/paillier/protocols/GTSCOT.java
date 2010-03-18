@@ -11,7 +11,7 @@ import thep.paillier.EncryptedInteger;
 import thep.paillier.PrivateKey;
 import thep.paillier.PublicKey;
 import thep.paillier.exceptions.PublicKeysNotEqualException;
-import thep.paillier.exceptions.VectorSizesNotEqualException;
+import thep.paillier.exceptions.SizesNotEqualException;
 
 public class GTSCOT {
 	/**
@@ -23,12 +23,12 @@ public class GTSCOT {
 	 * @param s0 message to send if x<y, should be member of D_s
 	 * @param s1 message to send if x>y, should be member of D_s
 	 * @return an encrypted vector which contains s0 if x<y, s1 if x>y
-	 * @throws VectorSizesNotEqualException
+	 * @throws SizesNotEqualException
 	 * @throws PublicKeysNotEqualException
 	 */
 	public static EncryptedInteger[] sender(PublicKey pub, EncryptedInteger[] x, 
 			BigInteger[] y, BigInteger s0, BigInteger s1) 
-	  throws VectorSizesNotEqualException, PublicKeysNotEqualException {
+	  throws SizesNotEqualException, PublicKeysNotEqualException {
 		// Check bit lengths of inputs, make sure they are equal
 		// pad the shorter vector if necessary
 		if (x.length < y.length) {
