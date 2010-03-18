@@ -1,5 +1,10 @@
 package test.thep.paillier;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 
 import junit.framework.TestCase;
@@ -68,6 +73,68 @@ public class EncryptedPolynomialTest extends TestCase {
 		// Decrypt coefficients and make sure they are what was expected
 		for (int i=0; i < expected2.length; i++) {
 			assertEquals(expected2[i], ans.getCoefficients()[i].decrypt(priv));
+		}
+	}
+	
+	public void testMultiplyConstant() throws PublicKeysNotEqualException, SizesNotEqualException {
+		// Try multiply of identity by 10
+		EncryptedPolynomial ans = identity.multiply(BigInteger.TEN);
+		BigInteger[] expected1 = {BigInteger.ZERO, BigInteger.TEN, BigInteger.ZERO};
+		
+		// Decrypt coefficients and make sure they are what was expected
+		for (int i=0; i < expected1.length; i++) {
+			assertEquals(expected1[i], ans.getCoefficients()[i].decrypt(priv));
+		}
+		
+		// Try multiply of square plus 10 by 2
+		ans = square_plus10.multiply(new BigInteger("2")); // should yield f(x) = 20 + 2x^2 [20, 0, 2]
+		BigInteger[] expected2 = {new BigInteger("20"), BigInteger.ZERO, new BigInteger("2")};
+		
+		// Decrypt coefficients and make sure they are what was expected
+		for (int i=0; i < expected2.length; i++) {
+			assertEquals(expected2[i], ans.getCoefficients()[i].decrypt(priv));
+		}
+	}
+	
+	public void testMultiplyKnownPoly() throws SizesNotEqualException, PublicKeysNotEqualException {
+		// multiply identity by identity
+		BigInteger[] identity_plain = {BigInteger.ZERO, BigInteger.ONE, BigInteger.ZERO};
+		EncryptedPolynomial ans = identity.multiply(identity_plain);
+		BigInteger[] expected1 = {BigInteger.ZERO, BigInteger.ZERO, BigInteger.ONE, BigInteger.ZERO, BigInteger.ZERO};
+		
+		// Decrypt coefficients and make sure they are what was expected
+		for (int i=0; i < expected1.length; i++) {
+			assertEquals(expected1[i], ans.getCoefficients()[i].decrypt(priv));
+		}
+		
+		// Try a fully populated trial
+		BigInteger[] test2 = {BigInteger.ONE, BigInteger.ONE, BigInteger.ONE};
+		EncryptedPolynomial poly2 = new EncryptedPolynomial(test2, pub);
+		BigInteger[] expected2 = {BigInteger.ONE, new BigInteger("2"), new BigInteger("3"), new BigInteger("2"), BigInteger.ONE}; 
+		
+		ans = poly2.multiply(test2);
+		
+		// Decrypt coefficients and make sure they are what was expected
+		for (int i=0; i < expected2.length; i++) {
+			assertEquals(expected2[i], ans.getCoefficients()[i].decrypt(priv));
+		}
+	}
+	
+	public void testSerialization() throws IOException, ClassNotFoundException {
+		// Save the integer to an output stream
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(baos);
+		oos.writeObject(square_plus10);
+		
+		// Load a new object from the output stream
+		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+		ObjectInputStream ois = new ObjectInputStream(bais);
+		EncryptedPolynomial tmp = (EncryptedPolynomial)ois.readObject();
+		
+		BigInteger[] expected = {BigInteger.TEN, BigInteger.ZERO, BigInteger.ONE};
+		
+		for (int i=0; i < expected.length; i++) {
+			assertEquals(expected[i], tmp.getCoefficients()[i].decrypt(priv));
 		}
 	}
 }
