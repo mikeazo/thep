@@ -52,6 +52,22 @@ public class EncryptedIntegerTest extends TestCase {
 		EncryptedInteger e_int = new EncryptedInteger(tmp1, pub);
 		e_int = e_int.add(tmp2);
 		assertEquals(expected, e_int.decrypt(priv));
+		
+		// Test subtraction to zero (addition of negative)
+		tmp1 = BigInteger.TEN;
+		tmp2 = BigInteger.TEN.negate();
+		expected = tmp1.add(tmp2);
+		e_int = new EncryptedInteger(tmp1, pub);
+		e_int = e_int.add(tmp2);
+		assertEquals(expected, e_int.decrypt(priv));
+		
+		// Test subtraction to negative number
+		tmp1 = BigInteger.ONE;
+		tmp2 = BigInteger.TEN.negate();
+		expected = tmp1.add(tmp2).mod(pub.getN());
+		e_int = new EncryptedInteger(tmp1, pub);
+		e_int = e_int.add(tmp2);
+		assertEquals(expected, e_int.decrypt(priv));
 	}
 	
 	/*
