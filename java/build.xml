@@ -1,0 +1,22 @@
+<project name="thep" default="compile">
+    <property name="src"   location="src"/>
+    <property name="bin"   location="bin"/>
+
+    <target name="init">
+        <mkdir dir="${bin}"/>
+    </target>
+
+    <target name="compile" depends="compile-thep,compile-tests"/>
+
+    <target name="compile-thep" depends="init">
+        <javac srcdir="${src}/thep" destdir="${bin}"/>
+    </target>
+
+    <target name="compile-tests" depends="init,compile-thep">
+        <javac srcdir="${src}/test" destdir="${bin}"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${bin}"/>
+    </target>
+</project> 
