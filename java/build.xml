@@ -23,11 +23,11 @@
     <target name="compile" depends="compile-thep,compile-tests"/>
 
     <target name="compile-thep" depends="init">
-        <javac srcdir="${src}/thep" destdir="${bin}"/>
+        <javac srcdir="${src}" destdir="${bin}"/>
     </target>
 
     <target name="compile-tests" depends="init,compile-thep">
-        <javac srcdir="${src}/test" destdir="${bin}"/>
+        <javac srcdir="${src}" destdir="${bin}"/>
     </target>
 
 <!-- Tests -->
