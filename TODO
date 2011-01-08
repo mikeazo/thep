@@ -1,3 +1,5 @@
 Research new protocols (e.g. threshold homomorphic encryption, secure multi-party computation) and implement them.
 
 Implement thep into other languages (python and a functional language)
+
+Implement Elliptic curve paillier
