@@ -168,5 +168,96 @@ public class EncryptedIntegerTest extends TestCase {
 		EncryptedInteger copy = new EncryptedInteger(e_int);
 		assertEquals(e_int.decrypt(priv), copy.decrypt(priv));
 	}
-	
+
+    /*
+     * Test subtraction of encrypted integer (mult by -1 and subtract)
+     * Undefined if subtraction if negative
+     */
+    public void testSubtract() {
+        BigInteger tmp1 = new BigInteger("2500");
+        BigInteger tmp2 = new BigInteger("1000");
+
+		BigInteger expected = tmp1.subtract(tmp2);
+		expected = expected.mod(pub.getN());
+
+		EncryptedInteger e_int1 = new EncryptedInteger(tmp1, pub);
+		EncryptedInteger e_int2 = new EncryptedInteger(tmp2, pub);
+        
+		try {
+            e_int2 = e_int2.multiply(new BigInteger("-1"));
+			e_int1 = e_int1.add(e_int2);
+		} catch (PublicKeysNotEqualException e) {
+			fail();
+		}
+		assertEquals(expected, e_int1.decrypt(priv));
+    }
+
+    /*
+     * Negative number test
+     */
+    public void testDecryptNegative() {
+
+        BigInteger tmp1 = new BigInteger("2500");
+		EncryptedInteger e_int1 = new EncryptedInteger(tmp1, pub);
+
+        BigInteger expected = new BigInteger("-2500");
+        
+        e_int1 = e_int1.multiply(new BigInteger("-1"));
+
+        BigInteger ans = e_int1.decrypt(priv);
+        ans = ans.subtract(pub.getN());  // we have to do this since we
+                                         // know the answer is negative
+
+        assertEquals(expected, ans);
+    }
+
+    /*
+     * Test subtraction of encrypted integer (mult by -1 and subtract)
+     * which results in a negative
+     */
+    public void testSubtractToNegative() {
+        BigInteger tmp1 = new BigInteger("2500");
+        BigInteger tmp2 = new BigInteger("3000");
+
+		BigInteger expected = tmp1.subtract(tmp2);
+
+		EncryptedInteger e_int1 = new EncryptedInteger(tmp1, pub);
+		EncryptedInteger e_int2 = new EncryptedInteger(tmp2, pub);
+        
+		try {
+            e_int2 = e_int2.multiply(new BigInteger("-1"));
+			e_int1 = e_int1.add(e_int2);
+		} catch (PublicKeysNotEqualException e) {
+			fail();
+		}
+
+        BigInteger ans = e_int1.decrypt(priv);
+        ans = ans.subtract(pub.getN()); // subtract N since answer is neg
+
+		assertEquals(expected, ans);
+    }
+
+    /*
+     * Test subtraction to zero 
+     */
+    public void testSubtractZero() {
+        BigInteger tmp1 = new BigInteger("2500");
+        BigInteger tmp2 = new BigInteger("2500");
+
+		BigInteger expected = tmp1.subtract(tmp2);
+
+		EncryptedInteger e_int1 = new EncryptedInteger(tmp1, pub);
+		EncryptedInteger e_int2 = new EncryptedInteger(tmp2, pub);
+        
+		try {
+            e_int2 = e_int2.multiply(new BigInteger("-1"));
+			e_int1 = e_int1.add(e_int2);
+		} catch (PublicKeysNotEqualException e) {
+			fail();
+		}
+
+        BigInteger ans = e_int1.decrypt(priv);
+
+		assertEquals(expected, ans);
+    }
 }
