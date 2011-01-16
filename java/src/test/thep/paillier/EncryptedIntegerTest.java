@@ -171,7 +171,6 @@ public class EncryptedIntegerTest extends TestCase {
 
     /*
      * Test subtraction of encrypted integer (mult by -1 and subtract)
-     * Undefined if subtraction if negative
      */
     public void testSubtract() {
         BigInteger tmp1 = new BigInteger("2500");
