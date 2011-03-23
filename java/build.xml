@@ -57,7 +57,11 @@
         </junit>
     </target>
 
-
+<!-- JAR Target -->
+    <target name="jar" depends="compile">
+        <mkdir dir="../releases/"/>
+        <jar destfile="../releases/thep.jar" basedir="bin/" excludes="**/test/**"/>
+    </target>
 <!-- Clean Target -->
     <target name="clean">
         <delete dir="${bin}"/>
