@@ -36,7 +36,7 @@ public class EncryptedInteger implements Serializable {
 	 * @param other the other encrypted integer
 	 */
 	public EncryptedInteger(EncryptedInteger other) {
-        this.rng = new SecureRandom();
+		this.rng = new SecureRandom();
 		this.cipherval = other.getCipherVal();
 		this.pub = other.getPublicKey();
 	}
