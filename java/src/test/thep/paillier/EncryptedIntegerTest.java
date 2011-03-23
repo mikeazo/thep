@@ -166,6 +166,7 @@ public class EncryptedIntegerTest extends TestCase {
 		tmp = tmp.mod(pub.getN());
 		EncryptedInteger e_int = new EncryptedInteger(tmp, pub);
 		EncryptedInteger copy = new EncryptedInteger(e_int);
+        copy.rerandomize();
 		assertEquals(e_int.decrypt(priv), copy.decrypt(priv));
 	}
 
