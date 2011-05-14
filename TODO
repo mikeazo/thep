@@ -1,3 +1,12 @@
+Encrypted Strings
+    Leaks length of string potentially (can this be dealt with in way that functions still work?)
+    257 is prime
+
+Implement STRCMP for encrypted strings (ascii only)
+    Can be done with with GTSCOT (will get hairy since GTSCOT operates on encrypted bits)
+    Another possibility is to weight characters first characters are heavily weighted, later characters, not so much
+        This still conforms to the standard < 0, 0, > 0
+
 Research new protocols (e.g. threshold homomorphic encryption, secure multi-party computation) and implement them.
 
 Implement thep into other languages (python and a functional language)

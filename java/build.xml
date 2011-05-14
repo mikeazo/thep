@@ -31,7 +31,7 @@
     </target>
 
 <!-- Tests -->
-    <target name="test" depends="test-EncryptedInteger,test-EncryptedPolynomial,test-GTSCOT"/>
+    <target name="test" depends="test-EncryptedInteger,test-EncryptedPolynomial,test-GTSCOT,test-ZKSM"/>
 
     <target name="test-EncryptedInteger" depends="compile-tests">
         <junit>
@@ -54,6 +54,14 @@
             <classpath refid="classpath.test"/>
             <formatter type="brief" usefile="false"/>
             <test name="test.thep.paillier.protocols.GTSCOTTest"/>
+        </junit>
+    </target>
+
+    <target name="test-ZKSM" depends="compile-tests">
+        <junit>
+            <classpath refid="classpath.test"/>
+            <formatter type="brief" usefile="false"/>
+            <test name="test.thep.paillier.protocols.ZKSetMembershipTest"/>
         </junit>
     </target>
 

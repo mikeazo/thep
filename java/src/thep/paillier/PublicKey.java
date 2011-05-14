@@ -52,17 +52,19 @@ public class PublicKey implements Serializable {
 		return this.n.equals(other.getN());
 	}
 	
-	/*
-	 * A pre-computed value which should not be used outside this package
+	/**
+	 * Returns g
+	 * @return g
 	 */
-	BigInteger getG() {
+	public BigInteger getG() {
 		return g;
 	}
 	
-	/*
-	 * A pre-computed value which should not be used outside this package
+	/**
+	 * Returns N Squared
+	 * @return N Squared
 	 */
-	BigInteger getNSquared() {
+	public BigInteger getNSquared() {
 		return n_squared;
 	}
 }

@@ -47,7 +47,7 @@ public class EncryptedInteger implements Serializable {
 	 * 
 	 * @param plainval the new plaintext value that will be encrypted
 	 */
-	public void set(BigInteger plainval) {
+	public BigInteger set(BigInteger plainval) {
 		// Encrypt plainval and store it in cipherval
 		BigInteger r;
 		BigInteger x;
@@ -62,6 +62,8 @@ public class EncryptedInteger implements Serializable {
 		
 		cipherval = cipherval.multiply(x);
 		cipherval = cipherval.mod(this.pub.getNSquared());
+		
+		return r;
 	}
 	
 	/**

@@ -160,7 +160,7 @@ public class EncryptedPolynomial implements Serializable {
 	
 	/**
 	 * Returns the encrypted coefficients which make up the polynomial
-	 * @return
+	 * @return the encrypted coefficients which make up the polynomial
 	 */
 	public EncryptedInteger[] getCoefficients() {
 		return this.coefficients;

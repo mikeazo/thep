@@ -122,7 +122,7 @@ public class GTSCOT {
 	 * is plaintext message space, max should be fairly close (40 to 80 bits
 	 * smaller) to maximize bandwidth. It should not be same as plaintext
 	 * message space however, or the protocol won't work.
-	 * @return
+	 * @return returns the decryption of the answer from the server
 	 */
 	public static BigInteger receiver(PrivateKey priv, EncryptedInteger[] mu, 
 			BigInteger max) {
@@ -150,7 +150,7 @@ public class GTSCOT {
 	/**
 	 * Creates a vector which represents the given number
 	 * @param y the number from which to create the vector
-	 * @return
+	 * @return an array containing the individual bits of y encrypted separately (from MSBit to LSBit)
 	 */
 	public static BigInteger[] createVector(BigInteger y) {
 		BigInteger[] tmp = new BigInteger[y.bitLength()];
@@ -183,7 +183,14 @@ public class GTSCOT {
 	
 	private static EncryptedInteger computeF(EncryptedInteger xi, BigInteger yi) throws PublicKeysNotEqualException {
 		EncryptedInteger tmp = null;
-		tmp = xi.add(xi.multiply(yi).multiply(new BigInteger("-2"))).add(yi);
+		//tmp = xi.add(xi.multiply(yi).multiply(new BigInteger("-2"))).add(yi);
+
+        if (yi.equals(BigInteger.ONE)) {
+            tmp = xi.multiply(new BigInteger("-1")).add(BigInteger.ONE);
+        }
+        else {
+            tmp = xi;
+        }
 		
 		return tmp;
 	}
