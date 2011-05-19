@@ -40,7 +40,7 @@ public class ZKSetMembershipTest extends TestCase {
 			
 			// generate the verifier with the commitments and generate the challenge
 			ZKSetMembershipVerifier verifier = new ZKSetMembershipVerifier(pub, c, uVals, theSet);
-			BigInteger e = verifier.genChallenge(new BigInteger("64"));
+			BigInteger e = verifier.genChallenge(new BigInteger("128"));
 			
 			// Use the challenge to generate the response
 			prover.computeResponse(e, r);
@@ -64,13 +64,13 @@ public class ZKSetMembershipTest extends TestCase {
 			BigInteger[] uVals = prover.genCommitments();
 			
 			ZKSetMembershipVerifier verifier = new ZKSetMembershipVerifier(pub, c, uVals, theSet);
-			BigInteger e = verifier.genChallenge(new BigInteger("64"));
+			BigInteger e = verifier.genChallenge(new BigInteger("128"));
 			
 			prover.computeResponse(e, r);
 			BigInteger[] eVals = prover.getEs();
 			BigInteger[] vVals = prover.getVs();
 			
-			assertFalse(verifier.checkResponse(eVals, vVals)); // This could actually be true with low probability
+			assertFalse(verifier.checkResponse(eVals, vVals)); // TODO: This could actually be true with low probability
 		}
 	}
 	
@@ -85,7 +85,7 @@ public class ZKSetMembershipTest extends TestCase {
 			BigInteger[] uVals = prover.genCommitments();
 			
 			ZKSetMembershipVerifier verifier = new ZKSetMembershipVerifier(pub, c, uVals, theSet);
-			BigInteger e = verifier.genChallenge(new BigInteger("64"));
+			BigInteger e = verifier.genChallenge(new BigInteger("128"));
 			
 			prover.computeResponse(e, r);
 			BigInteger[] eVals = prover.getEs();
@@ -106,7 +106,7 @@ public class ZKSetMembershipTest extends TestCase {
 			BigInteger[] uVals = prover.genCommitments();
 			
 			ZKSetMembershipVerifier verifier = new ZKSetMembershipVerifier(pub, c, uVals, theSet);
-			BigInteger e = verifier.genChallenge(new BigInteger("64"));
+			BigInteger e = verifier.genChallenge(new BigInteger("128"));
 			
 			prover.computeResponse(e, r);
 			BigInteger[] eVals = prover.getEs();
@@ -127,7 +127,7 @@ public class ZKSetMembershipTest extends TestCase {
 			BigInteger[] uVals = prover.genCommitments();
 			
 			ZKSetMembershipVerifier verifier = new ZKSetMembershipVerifier(pub, c, uVals, theSet);
-			BigInteger e = verifier.genChallenge(new BigInteger("64"));
+			BigInteger e = verifier.genChallenge(new BigInteger("128"));
 			
 			prover.computeResponse(e, r);
 			BigInteger[] eVals = prover.getEs();
@@ -158,13 +158,13 @@ public class ZKSetMembershipTest extends TestCase {
 			BigInteger[] uVals = prover.genCommitments();
 			
 			ZKSetMembershipVerifier verifier = new ZKSetMembershipVerifier(pub, c, uVals, theSet);
-			BigInteger e = verifier.genChallenge(new BigInteger("64"));
+			BigInteger e = verifier.genChallenge(new BigInteger("128"));
 			
 			prover.computeResponse(e, r);
 			BigInteger[] eVals = prover.getEs();
 			BigInteger[] vVals = prover.getVs();
 			
-			assertFalse(verifier.checkResponse(eVals, vVals)); // This could actually be true with low probability
+			assertFalse(verifier.checkResponse(eVals, vVals)); // TODO: This could actually be true with low probability
 		}
 	}
 	
@@ -189,13 +189,13 @@ public class ZKSetMembershipTest extends TestCase {
 			BigInteger[] uVals = prover.genCommitments();
 			
 			ZKSetMembershipVerifier verifier = new ZKSetMembershipVerifier(pub, c, uVals, theSet);
-			BigInteger e = verifier.genChallenge(new BigInteger("64"));
+			BigInteger e = verifier.genChallenge(new BigInteger("128"));
 			
 			prover.computeResponse(e, r);
 			BigInteger[] eVals = prover.getEs();
 			BigInteger[] vVals = prover.getVs();
 			
-			assertFalse(verifier.checkResponse(eVals, vVals)); // This could actually be true with low probability
+			assertFalse(verifier.checkResponse(eVals, vVals)); // TODO: This could actually be true with low probability
 		}
 	}
 	
@@ -220,7 +220,7 @@ public class ZKSetMembershipTest extends TestCase {
 			BigInteger[] uVals = prover.genCommitments();
 			
 			ZKSetMembershipVerifier verifier = new ZKSetMembershipVerifier(pub, theEncryptedVector[i], uVals, theSet);
-			BigInteger e = verifier.genChallenge(new BigInteger("64"));
+			BigInteger e = verifier.genChallenge(new BigInteger("128"));
 			
 			prover.computeResponse(e, rVector[i]);
 			BigInteger[] eVals = prover.getEs();
@@ -247,12 +247,36 @@ public class ZKSetMembershipTest extends TestCase {
 		BigInteger[] uVals = prover.genCommitments();
 		
 		ZKSetMembershipVerifier verifier = new ZKSetMembershipVerifier(pub, sum, uVals, theSetSingle);
-		BigInteger e = verifier.genChallenge(new BigInteger("64"));
+		BigInteger e = verifier.genChallenge(new BigInteger("128"));
 		
 		prover.computeResponse(e, accumR);
 		BigInteger[] eVals = prover.getEs();
 		BigInteger[] vVals = prover.getVs();
 		
 		assertTrue(verifier.checkResponse(eVals, vVals));
+	}
+	
+	public void testZKSMNonInteractiveTrue() throws ZKSetMembershipException {
+		BigInteger[] theSet = {new BigInteger("0"), new BigInteger("1"), 
+				new BigInteger("2"), new BigInteger("3"), new BigInteger("4")};
+		
+		EncryptedInteger c = new EncryptedInteger(BigInteger.ONE, pub);
+		BigInteger r = c.set(BigInteger.ONE); // must call set to get r, need to fix this securely somehow
+		
+		int msgIndex = 1;
+		
+		for (int i=0; i<10; i++) {
+			// Run non-interactive prover
+			ZKSetMembershipProver prover = new ZKSetMembershipProver(pub, theSet, msgIndex, c);
+			BigInteger[] uVals = prover.genCommitments();
+			BigInteger e = prover.genChallengeFromCommitments(uVals);
+			prover.computeResponse(e, r);
+			BigInteger[] eVals = prover.getEs();
+			BigInteger[] vVals = prover.getVs();
+			
+			// run non-interactive verifier
+			ZKSetMembershipVerifier verifier = new ZKSetMembershipVerifier(pub, c, uVals, theSet);
+			assertTrue(verifier.checkResponseNonInteractive(eVals, vVals, e));
+		}
 	}
 }
