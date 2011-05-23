@@ -17,6 +17,10 @@ public class EncryptedInteger implements Serializable {
 	private PublicKey	pub;
 	private Random rng;
 	
+	public EncryptedInteger(PublicKey pub) {
+		this(BigInteger.ZERO, pub);
+	}
+	
 	/**
 	 * Constructs an encrypted integer version of the given plaintext value
 	 * with the given public key.
@@ -43,9 +47,10 @@ public class EncryptedInteger implements Serializable {
 	
 	/**
 	 * Sets the encrypted integer to an encrypted version of the plaintext
-	 * value
+	 * value. WARNING: The return value 'r' must be kept private for security.
 	 * 
 	 * @param plainval the new plaintext value that will be encrypted
+	 * @return the random number used to encrypt plainval
 	 */
 	public BigInteger set(BigInteger plainval) {
 		// Encrypt plainval and store it in cipherval
@@ -68,6 +73,9 @@ public class EncryptedInteger implements Serializable {
 	
 	/**
 	 * Adds one encrypted integer to this encrypted integer
+	 * Note, if you are using r returned from the set(BigInteger) method,
+	 * you can compute the r for the sum of two encrypted integers by multiplying
+	 * the r values and taking the result mod pub.getNSquared().  
 	 * 
 	 * @param other the encrypted integer to add
 	 * @return a new encrypted integer with the encrypted integer added to the current

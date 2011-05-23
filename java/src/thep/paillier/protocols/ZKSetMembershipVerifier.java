@@ -85,7 +85,7 @@ public class ZKSetMembershipVerifier {
 			eValAccum = eValAccum.add(tmp).mod(this.pub.getN());
 		}
 		
-		if (eValAccum.compareTo(this.e) != 0) {
+		if (this.e.compareTo(eValAccum) != 0) {
 			return false;
 		}
 		
@@ -111,11 +111,12 @@ public class ZKSetMembershipVerifier {
 	 * @param eVals the e values given by the prover
 	 * @param vVals the v values given by the prover
 	 * @param digest the challenge value used by the prover
+	 * @param A the length of the challenge agreed upon by the two parties, should be a power of 2
 	 * @return true if the response check is OK, otherwise false
 	 * @throws ZKSetMembershipException
 	 */
 	public boolean checkResponseNonInteractive(BigInteger[] eVals, BigInteger[] vVals, 
-			BigInteger digest) throws ZKSetMembershipException {
+			BigInteger digest, BigInteger A) throws ZKSetMembershipException {
 		// make sure lengths are equal
 		if (eVals.length != vVals.length) {
 			throw new ZKSetMembershipException("Arrays passed to checkResponse must be same length");
@@ -126,7 +127,7 @@ public class ZKSetMembershipVerifier {
 			this.hashFunc.update(this.uVals[i].toByteArray());
 		}
 		
-		BigInteger testDigest = new BigInteger(this.hashFunc.digest()).mod(new BigInteger("128"));
+		BigInteger testDigest = new BigInteger(this.hashFunc.digest()).mod(A);
 		
 		if (!testDigest.equals(digest))	{
 			return false;
@@ -136,5 +137,20 @@ public class ZKSetMembershipVerifier {
 		
 		
 		return this.checkResponse(eVals, vVals);
+	}
+
+	/**
+	 * Checks the response from the prover. Uses the Fiat-Shamir heuristic.
+	 * Sets A equal to 128.
+	 * 
+	 * @param eVals the e values given by the prover
+	 * @param vVals the v values given by the prover
+	 * @param digest the challenge value used by the prover
+	 * @return true if the response check is OK, otherwise false
+	 * @throws ZKSetMembershipException
+	 */
+	public boolean checkResponseNonInteractive(BigInteger[] eVals, BigInteger[] vVals, 
+			BigInteger digest) throws ZKSetMembershipException {
+		return checkResponseNonInteractive(eVals, vVals, digest, new BigInteger("128"));
 	}
 }

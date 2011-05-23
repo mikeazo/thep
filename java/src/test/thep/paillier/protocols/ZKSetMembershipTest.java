@@ -208,7 +208,7 @@ public class ZKSetMembershipTest extends TestCase {
 		BigInteger[] rVector = new BigInteger[theVector.length];
 		// initialize the encrypted vector
 		for (int i=0; i<theVector.length; i++) {
-			EncryptedInteger tmp = new EncryptedInteger(theVector[i], pub);
+			EncryptedInteger tmp = new EncryptedInteger(pub);
 			rVector[i] = tmp.set(theVector[i]);
 			theEncryptedVector[i] = tmp;
 		}
@@ -260,7 +260,7 @@ public class ZKSetMembershipTest extends TestCase {
 		BigInteger[] theSet = {new BigInteger("0"), new BigInteger("1"), 
 				new BigInteger("2"), new BigInteger("3"), new BigInteger("4")};
 		
-		EncryptedInteger c = new EncryptedInteger(BigInteger.ONE, pub);
+		EncryptedInteger c = new EncryptedInteger(pub);
 		BigInteger r = c.set(BigInteger.ONE); // must call set to get r, need to fix this securely somehow
 		
 		int msgIndex = 1;
