@@ -15,7 +15,7 @@ public class ZKSetMembershipVerifier {
 	private BigInteger[] uVals;
 	private BigInteger e;
 	private PublicKey pub;
-	private EncryptedInteger c;
+	private EncryptedInteger cipherVal;
 	private BigInteger[] theSet;
 	private MessageDigest hashFunc;
 	
@@ -23,15 +23,15 @@ public class ZKSetMembershipVerifier {
 	 * Constructor
 	 * 
 	 * @param pub the public key
-	 * @param c the cipher text
+	 * @param cipherVal the cipher text
 	 * @param uVals the u values from the prover
 	 * @param theSet the set on which to test membership
 	 * @throws ZKSetMembershipException 
 	 */
-	public ZKSetMembershipVerifier(PublicKey pub, EncryptedInteger c, BigInteger[] uVals,
-			BigInteger[] theSet) throws ZKSetMembershipException {
+	public ZKSetMembershipVerifier(PublicKey pub, EncryptedInteger cipherVal, 
+			BigInteger[] uVals,	BigInteger[] theSet) throws ZKSetMembershipException {
 		this.pub = pub;
-		this.c = c;
+		this.cipherVal = cipherVal;
 		this.uVals = uVals;
 		this.theSet = theSet;
 		
@@ -93,7 +93,7 @@ public class ZKSetMembershipVerifier {
 			BigInteger lhs = vVals[i].modPow(this.pub.getN(), N_Squared);
 			BigInteger rhs = this.pub.getG().modPow(this.theSet[i], N_Squared);
 			rhs = rhs.modInverse(N_Squared);
-			rhs = rhs.multiply(this.c.getCipherVal()).mod(N_Squared);
+			rhs = rhs.multiply(this.cipherVal.getCipherVal()).mod(N_Squared);
 			rhs = rhs.modPow(eVals[i], N_Squared);
 			rhs = rhs.multiply(this.uVals[i]).mod(N_Squared);
 			
@@ -110,13 +110,13 @@ public class ZKSetMembershipVerifier {
 	 * 
 	 * @param eVals the e values given by the prover
 	 * @param vVals the v values given by the prover
-	 * @param digest the challenge value used by the prover
+	 * @param challenge the challenge value used by the prover
 	 * @param A the length of the challenge agreed upon by the two parties, should be a power of 2
 	 * @return true if the response check is OK, otherwise false
 	 * @throws ZKSetMembershipException
 	 */
 	public boolean checkResponseNonInteractive(BigInteger[] eVals, BigInteger[] vVals, 
-			BigInteger digest, BigInteger A) throws ZKSetMembershipException {
+			BigInteger challenge, BigInteger A) throws ZKSetMembershipException {
 		// make sure lengths are equal
 		if (eVals.length != vVals.length) {
 			throw new ZKSetMembershipException("Arrays passed to checkResponse must be same length");
@@ -129,11 +129,11 @@ public class ZKSetMembershipVerifier {
 		
 		BigInteger testDigest = new BigInteger(this.hashFunc.digest()).mod(A);
 		
-		if (!testDigest.equals(digest))	{
+		if (!testDigest.equals(challenge))	{
 			return false;
 		}
 		
-		this.e = digest;
+		this.e = challenge;
 		
 		
 		return this.checkResponse(eVals, vVals);
@@ -145,12 +145,12 @@ public class ZKSetMembershipVerifier {
 	 * 
 	 * @param eVals the e values given by the prover
 	 * @param vVals the v values given by the prover
-	 * @param digest the challenge value used by the prover
+	 * @param challenge the challenge value used by the prover
 	 * @return true if the response check is OK, otherwise false
 	 * @throws ZKSetMembershipException
 	 */
 	public boolean checkResponseNonInteractive(BigInteger[] eVals, BigInteger[] vVals, 
-			BigInteger digest) throws ZKSetMembershipException {
-		return checkResponseNonInteractive(eVals, vVals, digest, new BigInteger("128"));
+			BigInteger challenge) throws ZKSetMembershipException {
+		return checkResponseNonInteractive(eVals, vVals, challenge, new BigInteger("128"));
 	}
 }

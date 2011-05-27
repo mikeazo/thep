@@ -17,7 +17,7 @@ public class ZKSetMembershipProver {
 	private PublicKey pub;
 	private BigInteger[] theSet;
 	private int msgIndex;
-	private EncryptedInteger ciphertext;
+	private EncryptedInteger cipherVal;
 	private BigInteger rho;
 	private Random rng;
 	private MessageDigest hashFunc;
@@ -27,16 +27,16 @@ public class ZKSetMembershipProver {
 	 * @param pub the public key
 	 * @param theSet the set we want to prove cipherText is in
 	 * @param msgIndex the index we are claiming cipherText is in theSet
-	 * @param cipherText the cipher text for the proof
+	 * @param cipherVal the cipher text for the proof
 	 * @throws ZKSetMembershipException 
 	 */
 	public ZKSetMembershipProver(PublicKey pub, BigInteger[] theSet, 
-			int msgIndex, EncryptedInteger cipherText) throws ZKSetMembershipException {
+			int msgIndex, EncryptedInteger cipherVal) throws ZKSetMembershipException {
 		// intialize members
 		this.pub = pub;
 		this.theSet = theSet;
 		this.msgIndex = msgIndex;
-		this.ciphertext = cipherText;
+		this.cipherVal = cipherVal;
 		
 		// create the secure random number generator
 		this.rng = new SecureRandom();
@@ -64,7 +64,7 @@ public class ZKSetMembershipProver {
 		BigInteger[] commitments = new BigInteger[setLen];
 		BigInteger N = this.pub.getN();
 		BigInteger N_squared = this.pub.getNSquared();
-		BigInteger c = ciphertext.getCipherVal();
+		BigInteger c = cipherVal.getCipherVal();
 		BigInteger c_inverse = c.modInverse(N_squared);
 		BigInteger g = this.pub.getG();
 		int bits = this.pub.getBits();
