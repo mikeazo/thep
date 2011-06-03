@@ -1,5 +1,6 @@
 package thep.paillier.protocols;
 
+import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -8,6 +9,7 @@ import java.util.Random;
 
 import thep.paillier.EncryptedInteger;
 import thep.paillier.PublicKey;
+import thep.paillier.exceptions.BigIntegerClassNotValid;
 import thep.paillier.exceptions.ZKSetMembershipException;
 
 public class ZKSetMembershipProver {
@@ -21,22 +23,45 @@ public class ZKSetMembershipProver {
 	private BigInteger rho;
 	private Random rng;
 	private MessageDigest hashFunc;
-	
+	@SuppressWarnings("rawtypes")
+	private Constructor rngCons;
+	@SuppressWarnings("rawtypes")
+	private Constructor biCons;
+
 	/**
-	 * The default constructor
+	 * Constructs the class using BigInteger for big integers
 	 * @param pub the public key
-	 * @param theSet the set we want to prove cipherText is in
-	 * @param msgIndex the index we are claiming cipherText is in theSet
+	 * @param theSet the set we want to prove cipherVal is in
+	 * @param msgIndex the index we are claiming cipherVal is in theSet
 	 * @param cipherVal the cipher text for the proof
-	 * @throws ZKSetMembershipException 
+	 * @throws ZKSetMembershipException
+	 * @throws BigIntegerClassNotValid 
 	 */
 	public ZKSetMembershipProver(PublicKey pub, BigInteger[] theSet, 
-			int msgIndex, EncryptedInteger cipherVal) throws ZKSetMembershipException {
+			int msgIndex, EncryptedInteger cipherVal) throws ZKSetMembershipException, BigIntegerClassNotValid {
+		this(pub, theSet, msgIndex, cipherVal, BigInteger.class);
+	}
+	
+	/**
+	 * A constructor which includes setting a class for big integers
+	 * @param pub the public key
+	 * @param theSet the set we want to prove cipherVal is in
+	 * @param msgIndex the index we are claiming cipherVal is in theSet
+	 * @param cipherVal the cipher text for the proof
+	 * @param c the class to use for big integers
+	 * @throws ZKSetMembershipException 
+	 * @throws BigIntegerClassNotValid 
+	 */
+	public ZKSetMembershipProver(PublicKey pub, BigInteger[] theSet, 
+			int msgIndex, EncryptedInteger cipherVal,
+			Class<? extends BigInteger> c) throws ZKSetMembershipException, BigIntegerClassNotValid {
 		// intialize members
 		this.pub = pub;
 		this.theSet = theSet;
 		this.msgIndex = msgIndex;
 		this.cipherVal = cipherVal;
+		this.rngCons = this.findRngCons(c);
+		this.biCons = this.findBICons(c);
 		
 		// create the secure random number generator
 		this.rng = new SecureRandom();
@@ -58,8 +83,9 @@ public class ZKSetMembershipProver {
 	 *
 	 * @return the commitments
 	 * @throws ZKSetMembershipException
+	 * @throws BigIntegerClassNotValid 
 	 */
-	public BigInteger[] genCommitments() throws ZKSetMembershipException {
+	public BigInteger[] genCommitments() throws ZKSetMembershipException, BigIntegerClassNotValid {
 		int setLen = theSet.length;
 		BigInteger[] commitments = new BigInteger[setLen];
 		BigInteger N = this.pub.getN();
@@ -71,6 +97,15 @@ public class ZKSetMembershipProver {
 		
 		if (msgIndex >= setLen || msgIndex < 0) { // check the input data
 			throw new ZKSetMembershipException("Index out of Range");
+		}
+		
+		// if necessary create values with given class
+		if (this.biCons != null) {
+			try {
+				g = (BigInteger) this.biCons.newInstance(g);
+			} catch (Exception e) {
+				throw new BigIntegerClassNotValid("Could not construct");
+			}
 		}
 		
 		// generate a random rho
@@ -93,22 +128,45 @@ public class ZKSetMembershipProver {
 		this.vVals = new BigInteger[setLen];
 		for (int i=0; i<setLen; i++) {
 			// generate random v value
-			this.vVals[i] = new BigInteger(bits, this.rng);
-			// the v value must be less than n and not 0
-			while (this.vVals[i].compareTo(N) > 0 || this.vVals[i].compareTo(BigInteger.ZERO) == 0) {
-				this.vVals[i] = new BigInteger(bits, this.rng);
+			try {
+				this.vVals[i] = (BigInteger) this.rngCons.newInstance(bits, this.rng);
+				
+				// the v value must be less than n and not 0
+				while (this.vVals[i].compareTo(N) > 0 || this.vVals[i].compareTo(BigInteger.ZERO) == 0) {
+					this.vVals[i] = (BigInteger) this.rngCons.newInstance(bits, this.rng);
+				}
+			} catch (Exception e) {
+				throw new BigIntegerClassNotValid("Could not construct");
 			}
 		}
 		
 		// calculate the commitments
 		for (int i=0; i<setLen; i++) {
 			if (i == msgIndex) {
-				commitments[i] = rho.modPow(N, N_squared);
+				BigInteger tmpRho = rho;
+				
+				if (this.biCons != null)
+					try {
+						tmpRho = (BigInteger) this.biCons.newInstance(rho);
+					} catch (Exception e) {
+						throw new BigIntegerClassNotValid("Could not construct");
+					}
+				
+				commitments[i] = tmpRho.modPow(N, N_squared);
 			}
 			else {
 				BigInteger tmp1 = vVals[i].modPow(N, N_squared);
 				BigInteger tmp2 = g.modPow(theSet[i], N_squared);
+				
 				tmp2 = tmp2.multiply(c_inverse);
+				
+				if (this.biCons != null)
+					try {
+						tmp2 = (BigInteger) this.biCons.newInstance(tmp2);
+					} catch (Exception e) {
+						throw new BigIntegerClassNotValid("Could not construct");
+					}
+				
 				tmp2 = tmp2.modPow(eVals[i], N_squared);
 				commitments[i] = tmp1.multiply(tmp2);
 				commitments[i] = commitments[i].mod(N_squared);
@@ -155,13 +213,25 @@ public class ZKSetMembershipProver {
 	 * @param e the challenge
 	 * @param r the random number used during encryption
 	 * @throws ZKSetMembershipException 
+	 * @throws BigIntegerClassNotValid 
 	 */
-	public void computeResponse(BigInteger e, BigInteger r) throws ZKSetMembershipException {
+	public void computeResponse(BigInteger e, BigInteger r) throws ZKSetMembershipException, BigIntegerClassNotValid {
 		if (this.rho == null) {
 			throw new ZKSetMembershipException("genCommitments() must be called before computeResponse()");
 		}
 		
 		BigInteger N = this.pub.getN();
+		BigInteger g = this.pub.getG();
+		
+		if (this.biCons != null) {
+			try {
+			r = (BigInteger) this.biCons.newInstance(r);
+			g = (BigInteger) this.biCons.newInstance(g);
+			}
+			catch (Exception ex) {
+				throw new BigIntegerClassNotValid("Could not construct");
+			}
+		}
 		
 		// compute e_i
 		BigInteger tmp1 = e;
@@ -176,7 +246,7 @@ public class ZKSetMembershipProver {
 		// compute v_i
 		BigInteger v_i = this.rho.multiply(r.modPow(e_i, N)).mod(N);
 		tmp1 = tmp1.divide(N);
-		tmp1 = this.pub.getG().modPow(tmp1, N);
+		tmp1 = g.modPow(tmp1, N);
 		v_i = v_i.multiply(tmp1).mod(N);
 		this.vVals[msgIndex] = v_i;
 	}
@@ -195,5 +265,38 @@ public class ZKSetMembershipProver {
 	 */
 	public BigInteger[] getEs() {
 		return this.eVals;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private Constructor findRngCons(Class<? extends BigInteger> c) throws BigIntegerClassNotValid {
+		Constructor cons = null;
+		for (Constructor i : c.getConstructors()) {
+			Class[] params = i.getParameterTypes();
+			if (params.length == 2 && params[0].getCanonicalName().equals("int") &&
+					params[1].getCanonicalName().equals("java.util.Random")) {
+				cons = i;
+				break;
+			}
+		}
+		
+		if (cons == null) {
+			throw new BigIntegerClassNotValid("Could not find the int, Random constructor");
+		}
+		
+		return cons;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private Constructor findBICons(Class<? extends BigInteger> c) {
+		Constructor cons = null;
+		for (Constructor i : c.getConstructors()) {
+			Class[] params = i.getParameterTypes();
+			if (params.length == 1 && params[0].getCanonicalName().equals("java.math.BigInteger")) {
+				cons = i;
+				break;
+			}
+		}
+		
+		return cons;
 	}
 }

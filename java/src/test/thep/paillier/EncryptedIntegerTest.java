@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 import thep.paillier.EncryptedInteger;
 import thep.paillier.PrivateKey;
 import thep.paillier.PublicKey;
+import thep.paillier.exceptions.BigIntegerClassNotValid;
 import thep.paillier.exceptions.PublicKeysNotEqualException;
 
 public class EncryptedIntegerTest extends TestCase {
@@ -33,7 +34,7 @@ public class EncryptedIntegerTest extends TestCase {
 	 * Create an encrypted integer, then decrypt to make sure it decrypts
 	 * properly.
 	 */
-	public void testCreation() {
+	public void testCreation() throws BigIntegerClassNotValid {
 		BigInteger tmp = new BigInteger(1024, rng);
 		tmp = tmp.mod(pub.getN());
 		EncryptedInteger e_int = new EncryptedInteger(tmp, pub);
@@ -44,7 +45,7 @@ public class EncryptedIntegerTest extends TestCase {
 	/*
 	 * Tests the addition of a constant to an EncryptedInteger
 	 */
-	public void testAdditionOfConstant() {
+	public void testAdditionOfConstant() throws BigIntegerClassNotValid {
 		BigInteger tmp1 = new BigInteger(1024, rng);
 		BigInteger tmp2 = new BigInteger(1024, rng);
 		BigInteger expected = tmp1.add(tmp2);
@@ -73,7 +74,7 @@ public class EncryptedIntegerTest extends TestCase {
 	/*
 	 * Tests the multiplication of a constant to an EncryptedInteger
 	 */
-	public void testMultiplicationOfConstant() {
+	public void testMultiplicationOfConstant() throws BigIntegerClassNotValid {
 		BigInteger tmp1 = new BigInteger(1024, rng);
 		BigInteger tmp2 = new BigInteger(1024, rng);
 		BigInteger expected = tmp1.multiply(tmp2);
@@ -86,7 +87,7 @@ public class EncryptedIntegerTest extends TestCase {
 	/*
 	 * Tests the multiplication of a constant to an EncryptedInteger
 	 */
-	public void testAdditionOfEncryptedInteger() {
+	public void testAdditionOfEncryptedInteger() throws BigIntegerClassNotValid {
 		BigInteger tmp1 = new BigInteger(1024, rng);
 		BigInteger tmp2 = new BigInteger(1024, rng);
 		BigInteger expected = tmp1.add(tmp2);
@@ -104,7 +105,7 @@ public class EncryptedIntegerTest extends TestCase {
 	/*
 	 * Tests the multiplication of a constant to an EncryptedInteger
 	 */
-	public void testBadAdditionOfEncryptedInteger() {
+	public void testBadAdditionOfEncryptedInteger() throws BigIntegerClassNotValid {
 		PrivateKey tmp_priv = new PrivateKey(1024);
 		BigInteger tmp1 = new BigInteger(1024, rng);
 		BigInteger tmp2 = new BigInteger(1024, rng);
@@ -122,7 +123,7 @@ public class EncryptedIntegerTest extends TestCase {
 	/*
 	 * Test the rerandomize function.
 	 */
-	public void testRerandomize() {
+	public void testRerandomize() throws BigIntegerClassNotValid {
 		BigInteger tmp = new BigInteger(1024, rng);
 		tmp = tmp.mod(pub.getN());
 		EncryptedInteger e_int = new EncryptedInteger(tmp, pub);
@@ -139,7 +140,7 @@ public class EncryptedIntegerTest extends TestCase {
 	/*
 	 * Tests serialization of encrypted integers
 	 */
-	public void testSerializable() throws IOException, ClassNotFoundException {
+	public void testSerializable() throws IOException, ClassNotFoundException, BigIntegerClassNotValid {
 		BigInteger tmp = new BigInteger(1024, rng);
 		tmp = tmp.mod(pub.getN());
 		EncryptedInteger e_int1 = new EncryptedInteger(tmp, pub);
@@ -156,12 +157,14 @@ public class EncryptedIntegerTest extends TestCase {
 		
 		// Check that everything went alright
 		assertEquals(tmp, e_int2.decrypt(priv));
+		
+		e_int2.set(new BigInteger("45"));
 	}
 	
 	/*
 	 * Tests copy constructor
 	 */
-	public void testCopy() {
+	public void testCopy() throws BigIntegerClassNotValid {
 		BigInteger tmp = new BigInteger(1024, rng);
 		tmp = tmp.mod(pub.getN());
 		EncryptedInteger e_int = new EncryptedInteger(tmp, pub);
@@ -173,7 +176,7 @@ public class EncryptedIntegerTest extends TestCase {
     /*
      * Test subtraction of encrypted integer (mult by -1 and subtract)
      */
-    public void testSubtract() {
+    public void testSubtract() throws BigIntegerClassNotValid {
         BigInteger tmp1 = new BigInteger("2500");
         BigInteger tmp2 = new BigInteger("1000");
 
@@ -195,7 +198,7 @@ public class EncryptedIntegerTest extends TestCase {
     /*
      * Negative number test
      */
-    public void testDecryptNegative() {
+    public void testDecryptNegative() throws BigIntegerClassNotValid {
 
         BigInteger tmp1 = new BigInteger("2500");
 		EncryptedInteger e_int1 = new EncryptedInteger(tmp1, pub);
@@ -215,7 +218,7 @@ public class EncryptedIntegerTest extends TestCase {
      * Test subtraction of encrypted integer (mult by -1 and subtract)
      * which results in a negative
      */
-    public void testSubtractToNegative() {
+    public void testSubtractToNegative() throws BigIntegerClassNotValid {
         BigInteger tmp1 = new BigInteger("2500");
         BigInteger tmp2 = new BigInteger("3000");
 
@@ -240,7 +243,7 @@ public class EncryptedIntegerTest extends TestCase {
     /*
      * Test subtraction to zero 
      */
-    public void testSubtractZero() {
+    public void testSubtractZero() throws BigIntegerClassNotValid {
         BigInteger tmp1 = new BigInteger("2500");
         BigInteger tmp2 = new BigInteger("2500");
 

@@ -12,6 +12,7 @@ import thep.paillier.EncryptedInteger;
 import thep.paillier.EncryptedPolynomial;
 import thep.paillier.PrivateKey;
 import thep.paillier.PublicKey;
+import thep.paillier.exceptions.BigIntegerClassNotValid;
 import thep.paillier.exceptions.PublicKeysNotEqualException;
 import thep.paillier.exceptions.SizesNotEqualException;
 
@@ -32,18 +33,24 @@ public class EncryptedPolynomialTest extends TestCase {
 		
 		// Set up identity polynomial
 		BigInteger[] id = {BigInteger.ZERO, BigInteger.ONE, BigInteger.ZERO};
-		identity = new EncryptedPolynomial(id, pub);
 		
 		// Set up square polynomial
 		BigInteger[] sq = {BigInteger.ZERO, BigInteger.ZERO, BigInteger.ONE};
-		square = new EncryptedPolynomial(sq, pub);
 		
 		// Set up square plus 10 (10+x^2) polynomial
 		BigInteger[] sq_p10 = {BigInteger.TEN, BigInteger.ZERO, BigInteger.ONE};
-		square_plus10 = new EncryptedPolynomial(sq_p10, pub);
+		
+		try {
+			square = new EncryptedPolynomial(sq, pub);
+			identity = new EncryptedPolynomial(id, pub);
+			square_plus10 = new EncryptedPolynomial(sq_p10, pub);
+		} catch (BigIntegerClassNotValid e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
-	public void testEvaluate() throws PublicKeysNotEqualException {
+	public void testEvaluate() throws PublicKeysNotEqualException, BigIntegerClassNotValid {
 		EncryptedInteger ans = identity.evaluate(BigInteger.TEN);
 		assertEquals(BigInteger.TEN, ans.decrypt(priv));
 		
@@ -56,7 +63,7 @@ public class EncryptedPolynomialTest extends TestCase {
 		assertEquals(expected, ans.decrypt(priv));
 	}
 	
-	public void testAdd() throws PublicKeysNotEqualException, SizesNotEqualException {
+	public void testAdd() throws PublicKeysNotEqualException, SizesNotEqualException, BigIntegerClassNotValid {
 		// Try sum of identity and square
 		EncryptedPolynomial ans = identity.add(square);	// should yield f(x) = x + x^2 [0, 1, 1]
 		BigInteger[] expected1 = {BigInteger.ZERO, BigInteger.ONE, BigInteger.ONE};
@@ -76,7 +83,7 @@ public class EncryptedPolynomialTest extends TestCase {
 		}
 	}
 	
-	public void testMultiplyConstant() throws PublicKeysNotEqualException, SizesNotEqualException {
+	public void testMultiplyConstant() throws PublicKeysNotEqualException, SizesNotEqualException, BigIntegerClassNotValid {
 		// Try multiply of identity by 10
 		EncryptedPolynomial ans = identity.multiply(BigInteger.TEN);
 		BigInteger[] expected1 = {BigInteger.ZERO, BigInteger.TEN, BigInteger.ZERO};
@@ -96,7 +103,7 @@ public class EncryptedPolynomialTest extends TestCase {
 		}
 	}
 	
-	public void testMultiplyKnownPoly() throws SizesNotEqualException, PublicKeysNotEqualException {
+	public void testMultiplyKnownPoly() throws SizesNotEqualException, PublicKeysNotEqualException, BigIntegerClassNotValid {
 		// multiply identity by identity
 		BigInteger[] identity_plain = {BigInteger.ZERO, BigInteger.ONE, BigInteger.ZERO};
 		EncryptedPolynomial ans = identity.multiply(identity_plain);
@@ -120,7 +127,7 @@ public class EncryptedPolynomialTest extends TestCase {
 		}
 	}
 	
-	public void testSerialization() throws IOException, ClassNotFoundException {
+	public void testSerialization() throws IOException, ClassNotFoundException, BigIntegerClassNotValid {
 		// Save the integer to an output stream
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(baos);

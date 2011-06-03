@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 import thep.paillier.EncryptedInteger;
 import thep.paillier.PrivateKey;
 import thep.paillier.PublicKey;
+import thep.paillier.exceptions.BigIntegerClassNotValid;
 import thep.paillier.exceptions.PublicKeysNotEqualException;
 import thep.paillier.exceptions.SizesNotEqualException;
 import thep.paillier.protocols.GTSCOT;
@@ -34,7 +35,7 @@ public class GTSCOTTest extends TestCase {
 	/*
 	 * Test the greater than case
 	 */
-	public void testGT() throws SizesNotEqualException, PublicKeysNotEqualException {
+	public void testGT() throws SizesNotEqualException, PublicKeysNotEqualException, BigIntegerClassNotValid {
 		// Set up values
 		BigInteger x = new BigInteger("34");
 		BigInteger y = new BigInteger("21");
@@ -58,7 +59,7 @@ public class GTSCOTTest extends TestCase {
 	/*
 	 * Test the less than case
 	 */
-	public void testLT() throws SizesNotEqualException, PublicKeysNotEqualException {
+	public void testLT() throws SizesNotEqualException, PublicKeysNotEqualException, BigIntegerClassNotValid {
 		// Set up values
 		BigInteger x = new BigInteger("12");
 		BigInteger y = new BigInteger("52");
@@ -82,7 +83,7 @@ public class GTSCOTTest extends TestCase {
 	/*
 	 * Test the equal case
 	 */
-	public void testEQ() throws SizesNotEqualException, PublicKeysNotEqualException {
+	public void testEQ() throws SizesNotEqualException, PublicKeysNotEqualException, BigIntegerClassNotValid {
 		// Set up values
 		BigInteger x = new BigInteger("13");
 		BigInteger y = new BigInteger("13");
@@ -106,7 +107,7 @@ public class GTSCOTTest extends TestCase {
 	/*
 	 * Test serialization of encrypted integer array
 	 */
-	public void testSerialization() throws IOException, SizesNotEqualException, PublicKeysNotEqualException, ClassNotFoundException {
+	public void testSerialization() throws IOException, SizesNotEqualException, PublicKeysNotEqualException, ClassNotFoundException, BigIntegerClassNotValid {
 		// Set up values
 		BigInteger x = new BigInteger("5");
 		BigInteger y = new BigInteger("21");

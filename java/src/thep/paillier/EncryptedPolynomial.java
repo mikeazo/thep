@@ -3,6 +3,7 @@ package thep.paillier;
 import java.io.Serializable;
 import java.math.BigInteger;
 
+import thep.paillier.exceptions.BigIntegerClassNotValid;
 import thep.paillier.exceptions.PublicKeysNotEqualException;
 import thep.paillier.exceptions.SizesNotEqualException;
 
@@ -21,8 +22,9 @@ public class EncryptedPolynomial implements Serializable {
 	 * @param coefficients the coefficients of the polynomial 
 	 * (c_0 + c_1*x + c_2*x^2 + ... + c_n*x^n)
 	 * @param pub the public key associated with the polynomial
+	 * @throws BigIntegerClassNotValid 
 	 */
-	public EncryptedPolynomial(BigInteger[] coefficients, PublicKey pub) {
+	public EncryptedPolynomial(BigInteger[] coefficients, PublicKey pub) throws BigIntegerClassNotValid {
 		this.pub = pub;
 		this.coefficients = new EncryptedInteger[coefficients.length];
 		
@@ -48,9 +50,10 @@ public class EncryptedPolynomial implements Serializable {
 	 * @return an encrypted integer form of the polynomial evaluated at 
 	 * the given point
 	 * @throws PublicKeysNotEqualException
+	 * @throws BigIntegerClassNotValid 
 	 */
 	public EncryptedInteger evaluate(BigInteger point) throws 
-			PublicKeysNotEqualException {
+			PublicKeysNotEqualException, BigIntegerClassNotValid {
 		EncryptedInteger accum = new EncryptedInteger(BigInteger.ZERO, pub);
 		
 		for (int i=0; i < this.coefficients.length; i++) {
@@ -96,8 +99,9 @@ public class EncryptedPolynomial implements Serializable {
 	 * @param constant the constant to multiply by
 	 * @return an encrypted polynomial that is equal to the original multiplied
 	 * by the constant
+	 * @throws BigIntegerClassNotValid 
 	 */
-	public EncryptedPolynomial multiply(BigInteger constant) {
+	public EncryptedPolynomial multiply(BigInteger constant) throws BigIntegerClassNotValid {
 		EncryptedPolynomial tmp = new EncryptedPolynomial(this);
 		EncryptedInteger[] tmp_coefficients = 
 			new EncryptedInteger[this.coefficients.length];
@@ -117,9 +121,10 @@ public class EncryptedPolynomial implements Serializable {
 	 * text polynomial
 	 * @throws SizesNotEqualException
 	 * @throws PublicKeysNotEqualException
+	 * @throws BigIntegerClassNotValid 
 	 */
 	public EncryptedPolynomial multiply(BigInteger[] plain_coefficients) throws
-			SizesNotEqualException, PublicKeysNotEqualException {
+			SizesNotEqualException, PublicKeysNotEqualException, BigIntegerClassNotValid {
 		// Check sizes
 		if (this.coefficients.length != plain_coefficients.length)
 			throw new SizesNotEqualException("To multiply an encrypted " +

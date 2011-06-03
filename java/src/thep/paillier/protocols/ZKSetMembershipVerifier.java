@@ -1,5 +1,6 @@
 package thep.paillier.protocols;
 
+import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -8,6 +9,7 @@ import java.util.Random;
 
 import thep.paillier.EncryptedInteger;
 import thep.paillier.PublicKey;
+import thep.paillier.exceptions.BigIntegerClassNotValid;
 import thep.paillier.exceptions.ZKSetMembershipException;
 
 public class ZKSetMembershipVerifier {
@@ -18,6 +20,23 @@ public class ZKSetMembershipVerifier {
 	private EncryptedInteger cipherVal;
 	private BigInteger[] theSet;
 	private MessageDigest hashFunc;
+	@SuppressWarnings("rawtypes")
+	private Constructor biCons;
+
+	/**
+	 * Constructor which uses BigInteger
+	 * 
+	 * @param pub the public key
+	 * @param cipherVal the cipher text
+	 * @param uVals the u values from the prover
+	 * @param theSet the set on which to test membership
+	 * @throws ZKSetMembershipException
+	 * @throws BigIntegerClassNotValid
+	 */
+	public ZKSetMembershipVerifier(PublicKey pub, EncryptedInteger cipherVal, 
+			BigInteger[] uVals,	BigInteger[] theSet) throws ZKSetMembershipException, BigIntegerClassNotValid {
+		this(pub, cipherVal, uVals, theSet, BigInteger.class);
+	}
 	
 	/**
 	 * Constructor
@@ -26,14 +45,17 @@ public class ZKSetMembershipVerifier {
 	 * @param cipherVal the cipher text
 	 * @param uVals the u values from the prover
 	 * @param theSet the set on which to test membership
+	 * @param c the class to use for big integers
 	 * @throws ZKSetMembershipException 
+	 * @throws BigIntegerClassNotValid 
 	 */
 	public ZKSetMembershipVerifier(PublicKey pub, EncryptedInteger cipherVal, 
-			BigInteger[] uVals,	BigInteger[] theSet) throws ZKSetMembershipException {
+			BigInteger[] uVals,	BigInteger[] theSet, Class<? extends BigInteger> c) throws ZKSetMembershipException, BigIntegerClassNotValid {
 		this.pub = pub;
 		this.cipherVal = cipherVal;
 		this.uVals = uVals;
 		this.theSet = theSet;
+		this.biCons = this.findBICons(c);
 		
 		try {
 			this.hashFunc = java.security.MessageDigest.getInstance("SHA-1");
@@ -72,8 +94,9 @@ public class ZKSetMembershipVerifier {
 	 * @param vVals the v values given by the prover
 	 * @return true if the response check is OK, otherwise false
 	 * @throws ZKSetMembershipException
+	 * @throws BigIntegerClassNotValid 
 	 */
-	public boolean checkResponse(BigInteger[] eVals, BigInteger[] vVals) throws ZKSetMembershipException {
+	public boolean checkResponse(BigInteger[] eVals, BigInteger[] vVals) throws ZKSetMembershipException, BigIntegerClassNotValid {
 		if (eVals.length != vVals.length) {
 			throw new ZKSetMembershipException("Arrays passed to checkResponse must be same length");
 		}
@@ -90,10 +113,32 @@ public class ZKSetMembershipVerifier {
 		}
 		
 		for (int i=0; i<eVals.length; i++) {
-			BigInteger lhs = vVals[i].modPow(this.pub.getN(), N_Squared);
-			BigInteger rhs = this.pub.getG().modPow(this.theSet[i], N_Squared);
+			BigInteger tmpV = vVals[i];
+			BigInteger g = this.pub.getG();
+			
+			if (this.biCons != null) {
+				try {
+					tmpV = (BigInteger) this.biCons.newInstance(tmpV);
+					g = (BigInteger) this.biCons.newInstance(g);
+				}
+				catch (Exception e) {
+					throw new BigIntegerClassNotValid("Could not construct");
+				}
+			}
+			
+			BigInteger lhs = tmpV.modPow(this.pub.getN(), N_Squared);
+			BigInteger rhs = g.modPow(this.theSet[i], N_Squared);
 			rhs = rhs.modInverse(N_Squared);
 			rhs = rhs.multiply(this.cipherVal.getCipherVal()).mod(N_Squared);
+			
+			if (this.biCons != null)
+				try {
+					rhs = (BigInteger) this.biCons.newInstance(rhs);
+				}
+				catch (Exception e){
+					throw new BigIntegerClassNotValid("Could not construct");
+				}
+			
 			rhs = rhs.modPow(eVals[i], N_Squared);
 			rhs = rhs.multiply(this.uVals[i]).mod(N_Squared);
 			
@@ -114,9 +159,10 @@ public class ZKSetMembershipVerifier {
 	 * @param A the length of the challenge agreed upon by the two parties, should be a power of 2
 	 * @return true if the response check is OK, otherwise false
 	 * @throws ZKSetMembershipException
+	 * @throws BigIntegerClassNotValid 
 	 */
 	public boolean checkResponseNonInteractive(BigInteger[] eVals, BigInteger[] vVals, 
-			BigInteger challenge, BigInteger A) throws ZKSetMembershipException {
+			BigInteger challenge, BigInteger A) throws ZKSetMembershipException, BigIntegerClassNotValid {
 		// make sure lengths are equal
 		if (eVals.length != vVals.length) {
 			throw new ZKSetMembershipException("Arrays passed to checkResponse must be same length");
@@ -148,9 +194,24 @@ public class ZKSetMembershipVerifier {
 	 * @param challenge the challenge value used by the prover
 	 * @return true if the response check is OK, otherwise false
 	 * @throws ZKSetMembershipException
+	 * @throws BigIntegerClassNotValid 
 	 */
 	public boolean checkResponseNonInteractive(BigInteger[] eVals, BigInteger[] vVals, 
-			BigInteger challenge) throws ZKSetMembershipException {
+			BigInteger challenge) throws ZKSetMembershipException, BigIntegerClassNotValid {
 		return checkResponseNonInteractive(eVals, vVals, challenge, new BigInteger("128"));
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private Constructor findBICons(Class<? extends BigInteger> c) {
+		Constructor cons = null;
+		for (Constructor i : c.getConstructors()) {
+			Class[] params = i.getParameterTypes();
+			if (params.length == 1 && params[0].getCanonicalName().equals("java.math.BigInteger")) {
+				cons = i;
+				break;
+			}
+		}
+		
+		return cons;
 	}
 }

@@ -10,6 +10,7 @@ import java.util.Random;
 import thep.paillier.EncryptedInteger;
 import thep.paillier.PrivateKey;
 import thep.paillier.PublicKey;
+import thep.paillier.exceptions.BigIntegerClassNotValid;
 import thep.paillier.exceptions.PublicKeysNotEqualException;
 import thep.paillier.exceptions.SizesNotEqualException;
 
@@ -25,10 +26,11 @@ public class GTSCOT {
 	 * @return an encrypted vector which contains s0 if x<y, s1 if x>y
 	 * @throws SizesNotEqualException
 	 * @throws PublicKeysNotEqualException
+	 * @throws BigIntegerClassNotValid 
 	 */
 	public static EncryptedInteger[] sender(PublicKey pub, EncryptedInteger[] x, 
 			BigInteger[] y, BigInteger s0, BigInteger s1) 
-	  throws SizesNotEqualException, PublicKeysNotEqualException {
+	  throws SizesNotEqualException, PublicKeysNotEqualException, BigIntegerClassNotValid {
 		// Check bit lengths of inputs, make sure they are equal
 		// pad the shorter vector if necessary
 		if (x.length < y.length) {
@@ -123,9 +125,10 @@ public class GTSCOT {
 	 * smaller) to maximize bandwidth. It should not be same as plaintext
 	 * message space however, or the protocol won't work.
 	 * @return returns the decryption of the answer from the server
+	 * @throws BigIntegerClassNotValid 
 	 */
 	public static BigInteger receiver(PrivateKey priv, EncryptedInteger[] mu, 
-			BigInteger max) {
+			BigInteger max) throws BigIntegerClassNotValid {
 		BigInteger rval = null;
 		BigInteger two = new BigInteger("2");
 		for (EncryptedInteger i : mu) {
@@ -168,9 +171,10 @@ public class GTSCOT {
 	 * @param pub the public key used for encryption
 	 * @param x the number to use to create the vector
 	 * @return the encrypted vector
+	 * @throws BigIntegerClassNotValid 
 	 */
 	public static EncryptedInteger[] createEncryptedVector(PublicKey pub, 
-			BigInteger x) {
+			BigInteger x) throws BigIntegerClassNotValid {
 		BigInteger[] tmp = GTSCOT.createVector(x);
 		EncryptedInteger[] encrypted_tmp = new EncryptedInteger[tmp.length];
 		
@@ -181,7 +185,7 @@ public class GTSCOT {
 		return encrypted_tmp;
 	}
 	
-	private static EncryptedInteger computeF(EncryptedInteger xi, BigInteger yi) throws PublicKeysNotEqualException {
+	private static EncryptedInteger computeF(EncryptedInteger xi, BigInteger yi) throws PublicKeysNotEqualException, BigIntegerClassNotValid {
 		EncryptedInteger tmp = null;
 		//tmp = xi.add(xi.multiply(yi).multiply(new BigInteger("-2"))).add(yi);
 

@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 import thep.paillier.EncryptedInteger;
 import thep.paillier.PrivateKey;
 import thep.paillier.PublicKey;
+import thep.paillier.exceptions.BigIntegerClassNotValid;
 import thep.paillier.exceptions.PublicKeysNotEqualException;
 import thep.paillier.exceptions.ZKSetMembershipException;
 import thep.paillier.protocols.ZKSetMembershipProver;
@@ -24,11 +25,11 @@ public class ZKSetMembershipTest extends TestCase {
 		this.pub = this.priv.getPublicKey();
 	}
 	
-	public void testZKSMTrue() throws ZKSetMembershipException {
+	public void testZKSMTrue() throws ZKSetMembershipException, BigIntegerClassNotValid {
 		BigInteger[] theSet = {new BigInteger("0"), new BigInteger("1"), 
 				new BigInteger("2"), new BigInteger("3"), new BigInteger("4")};
 		
-		EncryptedInteger c = new EncryptedInteger(BigInteger.ONE, pub);
+		EncryptedInteger c = new EncryptedInteger(pub);
 		BigInteger r = c.set(BigInteger.ONE); // must call set to get r, need to fix this
 		
 		int msgIndex = 1;
@@ -52,7 +53,7 @@ public class ZKSetMembershipTest extends TestCase {
 		}
 	}
 	
-	public void testZKSMFalse() throws ZKSetMembershipException {
+	public void testZKSMFalse() throws ZKSetMembershipException, BigIntegerClassNotValid {
 		BigInteger[] theSet = {new BigInteger("0"), new BigInteger("1"), 
 				new BigInteger("2"), new BigInteger("3"), new BigInteger("4")};
 		EncryptedInteger c = new EncryptedInteger(new BigInteger("10"), pub);
@@ -74,7 +75,7 @@ public class ZKSetMembershipTest extends TestCase {
 		}
 	}
 	
-	public void testZKSMSmallSet() throws ZKSetMembershipException {
+	public void testZKSMSmallSet() throws ZKSetMembershipException, BigIntegerClassNotValid {
 		BigInteger[] theSet = {new BigInteger("0"), new BigInteger("1")};
 		EncryptedInteger c = new EncryptedInteger(BigInteger.ONE, pub);
 		BigInteger r = c.set(BigInteger.ONE);
@@ -95,7 +96,7 @@ public class ZKSetMembershipTest extends TestCase {
 		}
 	}
 	
-	public void testZKSMSingleMemberSetTrue() throws ZKSetMembershipException {
+	public void testZKSMSingleMemberSetTrue() throws ZKSetMembershipException, BigIntegerClassNotValid {
 		BigInteger[] theSet = {new BigInteger("0")};
 		EncryptedInteger c = new EncryptedInteger(BigInteger.ZERO, pub);
 		BigInteger r = c.set(BigInteger.ZERO);
@@ -116,7 +117,7 @@ public class ZKSetMembershipTest extends TestCase {
 		}
 	}
 	
-	public void testZKSMSingleMemberSetFalse() throws ZKSetMembershipException {
+	public void testZKSMSingleMemberSetFalse() throws ZKSetMembershipException, BigIntegerClassNotValid {
 		BigInteger[] theSet = {new BigInteger("0")};
 		EncryptedInteger c = new EncryptedInteger(BigInteger.ONE, pub);
 		BigInteger r = c.set(BigInteger.ONE);
@@ -137,7 +138,7 @@ public class ZKSetMembershipTest extends TestCase {
 		}
 	}
 	
-	public void testZKSMAddTrue() throws ZKSetMembershipException, PublicKeysNotEqualException {
+	public void testZKSMAddTrue() throws ZKSetMembershipException, PublicKeysNotEqualException, BigIntegerClassNotValid {
 		BigInteger[] theSet = {new BigInteger("0"), new BigInteger("1"), 
 				new BigInteger("2"), new BigInteger("3"), new BigInteger("4"),
 				new BigInteger("6")};
@@ -168,7 +169,7 @@ public class ZKSetMembershipTest extends TestCase {
 		}
 	}
 	
-	public void testZKSMManyOperations() throws ZKSetMembershipException, PublicKeysNotEqualException {
+	public void testZKSMManyOperations() throws ZKSetMembershipException, PublicKeysNotEqualException, BigIntegerClassNotValid {
 		BigInteger[] theSet = {new BigInteger("0"), new BigInteger("1"), 
 				new BigInteger("2"), new BigInteger("3"), new BigInteger("4"),
 				new BigInteger("6")};
@@ -199,7 +200,7 @@ public class ZKSetMembershipTest extends TestCase {
 		}
 	}
 	
-	public void testZKSMVectorTrue() throws ZKSetMembershipException, PublicKeysNotEqualException {
+	public void testZKSMVectorTrue() throws ZKSetMembershipException, PublicKeysNotEqualException, BigIntegerClassNotValid {
 		BigInteger[] theSet = {BigInteger.ZERO, BigInteger.ONE};
 		BigInteger[] theSetSingle = {BigInteger.ONE};
 		
@@ -256,7 +257,7 @@ public class ZKSetMembershipTest extends TestCase {
 		assertTrue(verifier.checkResponse(eVals, vVals));
 	}
 	
-	public void testZKSMNonInteractiveTrue() throws ZKSetMembershipException {
+	public void testZKSMNonInteractiveTrue() throws ZKSetMembershipException, BigIntegerClassNotValid {
 		BigInteger[] theSet = {new BigInteger("0"), new BigInteger("1"), 
 				new BigInteger("2"), new BigInteger("3"), new BigInteger("4")};
 		

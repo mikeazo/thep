@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Random;
 
+import thep.paillier.exceptions.BigIntegerClassNotValid;
+
 public class PrivateKey implements Serializable {
 	/**
 	 * Serial version id
@@ -18,8 +20,9 @@ public class PrivateKey implements Serializable {
 	 * Constructs a private key with the specified number of bits
 	 * 
 	 * @param bits the number of bits for the key
+	 * @throws BigIntegerClassNotValid 
 	 */
-	public PrivateKey(int bits) {
+	public PrivateKey(int bits) {		
 		// Create a secure random number generator
 		Random rng = new SecureRandom();
 
